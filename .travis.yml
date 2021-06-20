@@ -34,10 +34,7 @@ jobs:
         - mvn -B test -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST
       before_deploy:
         - echo "Deploying version ${NEW_VERSION}${CHANGELIST}"
-        - git config --local user.name "$GITHUB_USERNAME"
-        - git config --local user.email "$GITHUB_EMAIL"
         - export TRAVIS_TAG="$(echo $NEW_VERSION)"
-        - git tag $TRAVIS_TAG
       deploy:
         - provider: script
           skip_cleanup: true
