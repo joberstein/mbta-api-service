@@ -8,6 +8,9 @@ env:
     # GITHUB TOKEN (Package Management)
     - secure: LIbB4L7syWl50gMtVnoZWwbvkv9vlNVAoXLFTPwAMYPaqrqyYcMKXdPOMdeFyV8Gbm+Dzvv94q8e1sWpLpkYfM4oHO8iWb7ta1k6h6D8GZC7Kb84HbPjnp626VOFWKg2cpUL5MUCUSRfOu7VYUOnPijxkT+g7D863kNCzgHE++P4K89M3Y+F2LpAiYfTT0jOGyXT7CsioiefkbHF2TMLtAAVJ6Kb0iEWI9JrA5/PFj6UiFk2XJlBfhYhVLomxvDZvvN9cEvWNzqN8bzwQ9z/gL8LEluU63sInFAdAO+6pmVV06rAdRMlspl19H+Jfe3NPHzBztC0iJLb+JJM8SImTIIpx7zB5Vtl9ElB0GLW7sl5Y+eYhGwtDlmPygE6sPaiKEezJPW+k+pGK9THDH0RRUWodDgpe4H1XLYrh9TDPMlETGrb5wj7ikG4ADUj85dKuNkXqSPGN7Mv4iVuYMtQE+ungTDWKglrtnLyGbUi49YD9mBOnKAdmXpQszJUkwuErBvF6UAQ8XB02mf4jtQ3zQRBjiO3I1heX1VL3szsv/NkETMjv6G24VIKIOIN+qWo+bMNI6QCrmJoRePa4wwjUYWHuCbsGS5XYCJs3KQru0qlYuchptFULmu9kzcZoAVCA/3zT5W0DRp/AfnGT0VGG5wRt6slLabTcFnUJiIt7Kg=
 
+git:
+  depth: false
+
 jobs:
   include:
     - if: tag IS blank
@@ -22,7 +25,6 @@ jobs:
         - echo $IS_MASTER
         - echo $CHANGELIST
         - echo $TRAVIS_COMMIT_MESSAGE
-        - git fetch origin master
         - CURRENT_VERSION="$(git describe origin/master --tags)"
         - echo $CURRENT_VERSION
       script:
