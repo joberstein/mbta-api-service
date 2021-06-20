@@ -12,11 +12,22 @@
             <id>github</id>
             <repositories>
                 <repository>
+                    <id>central</id>
+                    <url>https://repo1.maven.org/maven2</url>
+                    <releases>
+                        <updatePolicy/>
+                    </releases>
+                </repository>
+                <repository>
                     <id>github</id>
                     <url>https://maven.pkg.github.com/joberstein/*</url>
                     <snapshots>
                         <enabled>true</enabled>
+                        <updatePolicy/>
                     </snapshots>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
                 </repository>
             </repositories>
         </profile>
