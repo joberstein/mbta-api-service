@@ -34,5 +34,5 @@ jobs:
         script: mvn -s .mvn/settings.xml clean deploy -DskipTests -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST
         on:
           all_branches: true
-      after_success:
+      after_deploy:
         - if $IS_MASTER; then git tag "$NEW_VERSION" "$TRAVIS_COMMIT" && git push origin "$NEW_VERSION"; fi
