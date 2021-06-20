@@ -26,7 +26,7 @@ jobs:
       deploy:
         provider: script
         skip_cleanup: true
-        script: "mvn clean deploy -DskipTests -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST"
+        script: "mvn -s .m2/settings.xml clean deploy -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST"
         on:
           all_branches: true
       after_success:
