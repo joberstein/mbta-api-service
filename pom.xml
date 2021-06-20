@@ -6,7 +6,7 @@
 
     <groupId>com.jesseoberstein</groupId>
     <artifactId>mbta-api-service</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${revision}${changelist}</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -16,12 +16,23 @@
     </parent>
 
     <properties>
+        <revision>1.0.0</revision>
+        <changelist>-SNAPSHOT</changelist>
+
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <apache-cxf.version>3.4.3</apache-cxf.version>
         <jackson.version>2.10.3</jackson.version>
         <okhttp3.version>5.0.0-alpha.2</okhttp3.version>
     </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>github-packages</id>
+            <name>Github Packages</name>
+            <url>https://maven.pkg.github.com/joberstein/mbta-api-service</url>
+        </repository>
+    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
@@ -124,6 +135,34 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${project.parent.version}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.2.2</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                    <outputDirectory>target</outputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
