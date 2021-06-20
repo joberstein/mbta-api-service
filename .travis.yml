@@ -23,7 +23,7 @@ jobs:
         - nvm install lts/*
         - mvn clean install
       before_script:
-        - CURRENT_VERSION="$(git describe origin/master --tags)"
+        - CURRENT_VERSION="$(git describe --abbrev=0 --tags)"
       script:
         - if [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Major:.* ]]; then RELEASE_TYPE=major; fi
         - if [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Minor:.* ]]; then RELEASE_TYPE=minor; fi
