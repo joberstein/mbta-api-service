@@ -20,12 +20,12 @@ jobs:
       install:
         - nvm install lts/*
       script:
-        - [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Major:.* ]] && RELEASE_TYPE=major
-        - [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Minor:.* ]] && RELEASE_TYPE=minor
+        - if [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Major:.* ]]; then RELEASE_TYPE=major; fi
+        - if [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Minor:.* ]]; then RELEASE_TYPE=minor; fi
         - NEW_VERSION=$(npx semver -i $RELEASE_TYPE $CURRENT_VERSION)
       deploy:
         provider: script
-        skip_cleanup: true
+        cleanup: true
         script: "mvn -s .m2/settings.xml clean deploy -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST"
         on:
           all_branches: true
