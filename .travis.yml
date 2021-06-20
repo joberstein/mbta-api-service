@@ -39,9 +39,10 @@ jobs:
         on:
           all_branches: true
       after_deploy:
-        - $IS_MASTER && curl -s \
-          -X POST \
-          -H "Authorization=token $GITHUB_TOKEN" \
-          -H "Accept=application/vnd.github.v3+json" \
-          "$GITHUB_API_BASE_URL/releases" \
+        - >-
+          $IS_MASTER &&
+          curl -s -X POST
+          -H "Authorization=token $GITHUB_TOKEN"
+          -H "Accept=application/vnd.github.v3+json"
+          "$GITHUB_API_BASE_URL/releases"
           -d "{\"tag_name\":\"${NEW_VERSION}${CHANGELIST}\"}"
