@@ -19,19 +19,18 @@ jobs:
       cache:
         directories:
           - "$HOME/.m2"
-      install:
+      after_success:
         - nvm install lts/*
-        - mvn clean install
-      before_script:
-        - CURRENT_VERSION="$(git describe origin/master --tags)"
-      script:
+        - CURRENT_VERSION="$(git describe --abbrev=0 --tags)"
         - if [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Major:.* ]]; then RELEASE_TYPE=major; fi
         - if [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Minor:.* ]]; then RELEASE_TYPE=minor; fi
         - NEW_VERSION="$(npx semver -i $RELEASE_TYPE $CURRENT_VERSION)"
+      before_deploy:
+        - echo "Deploying version ${NEW_VERSION}${CHANGELIST}"
       deploy:
         provider: script
         skip_cleanup: true
-        script: mvn -s .mvn/settings.xml clean deploy -DskipTests -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST
+        script: mvn -B -s .mvn/settings.xml clean deploy -DskipTests -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST
         on:
           all_branches: true
       after_deploy:
