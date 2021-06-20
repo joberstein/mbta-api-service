@@ -22,7 +22,7 @@ jobs:
         - echo $IS_MASTER
         - echo $CHANGELIST
         - echo $TRAVIS_COMMIT_MESSAGE
-        - git remote add origin git@github.com:joberstein/mbta-api-service.git
+        - git fetch origin master
         - CURRENT_VERSION="$(git describe origin/master --tags)"
         - echo $CURRENT_VERSION
       script:
