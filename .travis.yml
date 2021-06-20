@@ -4,6 +4,7 @@ env:
     - RELEASE_TYPE=patch
     - IS_MASTER="$(if [[ $TRAVIS_BRANCH == 'master' ]]; then echo true; else echo false; fi)"
     - CHANGELIST="$(if $IS_MASTER; then echo ''; else echo '-SNAPSHOT'; fi)"
+    - GITHUB_API_BASE_URL="https://api.github.com/repos/$TRAVIS_REPO_SLUG"
 
     # GITHUB TOKEN (Package Management)
     - secure: "I4fxSaXEjztcJYIMYTiSqwd7hDRkEpi0q4pBtSflbIO9U0LEZ2/wSdwZlk8zKw6bHkE7J3izdNkaXh9qP1rIn8EOwbEsy/E6euEZfPfbOk6w7JPffMzM7uWJDIHBJwcRbQT6B7z5uJQq+GWmJCgkTCUbjwIP5Yb8NGpeaS+zqdX6XK9EqrLb0pcY2SG7Noqqsi8LN3owiMSLisy8IliFWJ41yaulS+0WDOjB6hGv24O1JZBbaLpJrejKLdmvaGBcj5bzVbsUaxZ+tKAjBrQxr0FKWuTBKrDRHJ1P6KWR90kgkTNzYrW0eTWJJtZlxtB9g8szlEJYJh+xLsIQQIGCxDRFaZ1sA7or2Q09FmfvzyGo5YaQfLZxlTrPv1YA5qacukxrnurZv/8eWsn3dpuayicB4AzKt2DnGFJL5PbC2wjusiU8b/pVv+x45+88ZwvHHhkPk+IOfA/vcn1IoWsazGq4QeZtyVs3A/11/8mADkgHp6HRq+4qlUwfMVRSYFh6+hE3JRhdybLFTIkXe9G7ug1dPVQ9ApEDsk1DJ1pRcmeGoXRLokVZnZM8D+lLjm0rfcL6GIA0Snw1aD2T0xsAtW7p7wMvB1SqxTfaT/LSp3gCFP6QNXIKXKJroil699xAeC09co600Tk5GbTcgYGGrARSI0+wUcWOy7Z6ELiIShQ="
@@ -19,9 +20,12 @@ jobs:
       cache:
         directories:
           - "$HOME/.m2"
+      before_install:
+        - sudo apt-get -y install jq
       after_success:
         - nvm install lts/*
-        - CURRENT_VERSION="$(git describe --abbrev=0 --tags)"
+        - LATEST_RELEASE="$(curl -s -H "Authorization=token $GITHUB_TOKEN" $GITHUB_API_BASE_URL/releases/latest)"
+        - CURRENT_VERSION="$(echo $LATEST_RELEASE | jq -r '.tag_name')"
         - if [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Major:.* ]]; then RELEASE_TYPE=major; fi
         - if [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Minor:.* ]]; then RELEASE_TYPE=minor; fi
         - NEW_VERSION="$(npx semver -i $RELEASE_TYPE $CURRENT_VERSION)"
@@ -35,4 +39,9 @@ jobs:
         on:
           all_branches: true
       after_deploy:
-        - if $IS_MASTER; then git tag "$NEW_VERSION" "$TRAVIS_COMMIT" && git push origin "$NEW_VERSION"; fi
+        - $IS_MASTER && curl -s \
+          -X POST \
+          -H "Authorization=token $GITHUB_TOKEN" \
+          -H "Accept=application/vnd.github.v3+json" \
+          "$GITHUB_API_BASE_URL/releases" \
+          -d "{\"tag_name\":\"${NEW_VERSION}${CHANGELIST}\"}"
