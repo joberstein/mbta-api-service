@@ -1,0 +1,33 @@
+env:
+  global:
+    - GITHUB_USERNAME=joberstein
+    - CURRENT_VERSION=$(git describe origin/master --tags)
+    - RELEASE_TYPE=patch
+    - IS_MASTER="$(if [[ $TRAVIS_BRANCH == 'master' ]]; then true; else echo false; fi)"
+    - CHANGELIST="$(if $IS_MASTER; then echo ''; else echo '-SNAPSHOT'; fi)"
+
+    # GITHUB_TOKEN
+    - secure: MKipgJu5QO90JFlrXH/Oag+Vo5islUzunBXBwo7B9gSAvpo27exKnGqHgxTTJ2tSSQsjFxYWGBpJfFDDEW9jqbhZ5dO4YjdOeqX1+D/QQVduxNH8/VfPMR3OlThQw/VVqCNOQgZE6Vb2Nsc6TSBfe9Qxx7VNjzruvJGbbeFeKsWpkrX/FXFLSC7L29GaLjXIxNDSZGpOMbkCONGms593M1FGTJ6ckbtZVHwcnTsVPQeWHbQPe0AkpwbAzbicPHiL+jyDtOAd+PCwaXtahBMU8OizO4YUUZT54mRM7z4Stm8/1OHMIyG2h1S+zzUxk4nRTWjErxIYqnva5zpW2fDicn0nXUf3aOBWtLTti3xhnVtCsYQjYbn3rn/nSu+HRlcPPlVcrW680cpmWG6o9k1aPU2zmJWwrf9NHM8jyJJTaMU3Nrpd4XQV0oCPK+ctP8W8HHsisTXawxeEDVy5KYtNhdNvFV6uqhLWVtaxYtYH/EOJ5Xg8yfdNwZcf5xmTkw8FAI3sCY/iqxRk7vLfuhbZ55vXs2UP1Va9xq11Xl7wZIR3mPEwoGWAlWd9tos7ZRhv+tnf6GCNZ+69PYjTwXvOfwFJz20AdeTJLnyozeJpXN02/JGBopAGzSJKhHDU1s/55Ipjqa13APW+9+HerOami/3PJWkfw1ku9RMwMzgB0zk=
+
+jobs:
+  include:
+    - if: tag IS blank
+      language: java
+      jdk: oraclejdk11
+      cache:
+        directories:
+          - $HOME/.m2
+      install:
+        - nvm install lts/*
+      script:
+        - [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Major:.* ]] && RELEASE_TYPE=major
+        - [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Minor:.* ]] && RELEASE_TYPE=minor
+        - NEW_VERSION=$(npx semver -i $RELEASE_TYPE $CURRENT_VERSION)
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script: "mvn clean deploy -DskipTests -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST"
+        on:
+          all_branches: true
+      after_success:
+        - if $IS_MASTER; then git tag "$NEW_VERSION" "$TRAVIS_COMMIT" && git push origin "$NEW_VERSION"; fi
