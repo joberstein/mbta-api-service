@@ -27,6 +27,7 @@ jobs:
         - NEW_VERSION="$(npx semver -i $RELEASE_TYPE $CURRENT_VERSION)"
       before_deploy:
         - echo "Deploying version ${NEW_VERSION}${CHANGELIST}"
+        - git remote set-url origin "https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$TRAVIS_REPO_SLUG.git"
       deploy:
         provider: script
         skip_cleanup: true
