@@ -1,6 +1,7 @@
 env:
   global:
     - GITHUB_USERNAME=joberstein
+    - GITHUB_EMAIL=7157500+joberstein@users.noreply.github.com
     - RELEASE_TYPE=patch
     - IS_MASTER="$(if [[ $TRAVIS_BRANCH == 'master' ]]; then echo true; else echo false; fi)"
     - CHANGELIST="$(if $IS_MASTER; then echo ''; else echo '-SNAPSHOT'; fi)"
@@ -20,29 +21,30 @@ jobs:
       cache:
         directories:
           - "$HOME/.m2"
-      before_install:
+      install:
         - sudo apt-get -y install jq
-      after_success:
         - nvm install lts/*
-        - LATEST_RELEASE="$(curl -s -H "Authorization=token $GITHUB_TOKEN" $GITHUB_API_BASE_URL/releases/latest)"
+      before_script:
+        - LATEST_RELEASE="$(curl -s $GITHUB_API_BASE_URL/releases/latest)"
         - CURRENT_VERSION="$(echo $LATEST_RELEASE | jq -r '.tag_name')"
         - if [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Major:.* ]]; then RELEASE_TYPE=major; fi
         - if [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Minor:.* ]]; then RELEASE_TYPE=minor; fi
         - NEW_VERSION="$(npx semver -i $RELEASE_TYPE $CURRENT_VERSION)"
+      script:
+        - mvn -B test -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST
       before_deploy:
         - echo "Deploying version ${NEW_VERSION}${CHANGELIST}"
-        - git remote set-url origin "https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$TRAVIS_REPO_SLUG.git"
+        - git config --local user.name "$GITHUB_USERNAME"
+        - git config --local user.email "$GITHUB_EMAIL"
+        - export TRAVIS_TAG="$(echo $NEW_VERSION)"
+        - git tag $TRAVIS_TAG
       deploy:
-        provider: script
-        skip_cleanup: true
-        script: mvn -B -s .mvn/settings.xml clean deploy -DskipTests -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST
-        on:
-          all_branches: true
-      after_deploy:
-        - >-
-          $IS_MASTER &&
-          curl -s -X POST
-          -H "Authorization=token $GITHUB_TOKEN"
-          -H "Accept=application/vnd.github.v3+json"
-          "$GITHUB_API_BASE_URL/releases"
-          -d "{\"tag_name\":\"${NEW_VERSION}${CHANGELIST}\"}"
+        - provider: script
+          skip_cleanup: true
+          script: mvn -B -s .mvn/settings.xml clean deploy -DskipTests -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST
+          on:
+            all_branches: true
+        - provider: releases
+          edge: true
+          on:
+            branch: master
