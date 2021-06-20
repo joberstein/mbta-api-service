@@ -2,7 +2,7 @@ env:
   global:
     - GITHUB_USERNAME=joberstein
     - RELEASE_TYPE=patch
-    - IS_MASTER="$(if [[ $TRAVIS_BRANCH == 'master' ]]; then true; else echo false; fi)"
+    - IS_MASTER="$(if [[ $TRAVIS_BRANCH == 'master' ]]; then echo true; else echo false; fi)"
     - CHANGELIST="$(if $IS_MASTER; then echo ''; else echo '-SNAPSHOT'; fi)"
 
     # GITHUB TOKEN (Package Management)
@@ -21,22 +21,17 @@ jobs:
           - "$HOME/.m2"
       install:
         - nvm install lts/*
+        - mvn clean install
       before_script:
-        - echo $IS_MASTER
-        - echo $CHANGELIST
-        - echo $TRAVIS_COMMIT_MESSAGE
         - CURRENT_VERSION="$(git describe origin/master --tags)"
-        - echo $CURRENT_VERSION
       script:
         - if [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Major:.* ]]; then RELEASE_TYPE=major; fi
         - if [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Minor:.* ]]; then RELEASE_TYPE=minor; fi
-        - echo $RELEASE_TYPE
         - NEW_VERSION="$(npx semver -i $RELEASE_TYPE $CURRENT_VERSION)"
-        - echo $NEW_VERSION
       deploy:
         provider: script
-        cleanup: true
-        script: mvn -s .m2/settings.xml clean deploy -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST
+        skip_cleanup: true
+        script: mvn -s .mvn/settings.xml clean deploy -DskipTests -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST
         on:
           all_branches: true
       after_success:
