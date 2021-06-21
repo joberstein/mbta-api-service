@@ -31,7 +31,7 @@ jobs:
         - if [[ "$TRAVIS_COMMIT_MESSAGE" =~ ^Minor:.* ]]; then RELEASE_TYPE=minor; fi
         - NEW_VERSION="$(npx semver -i $RELEASE_TYPE $CURRENT_VERSION)"
       script:
-        - mvn -B test -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST
+        - mvn -B clean install -Drevision=$NEW_VERSION -Dchangelist=$CHANGELIST
       before_deploy:
         - echo "Deploying version ${NEW_VERSION}${CHANGELIST}"
         - export TRAVIS_TAG="$(echo $NEW_VERSION)"
@@ -43,5 +43,7 @@ jobs:
             all_branches: true
         - provider: releases
           edge: true
+          cleanup: false
+          file: "target/mbta-api-service-${NEW_VERSION}.jar"
           on:
             branch: master
