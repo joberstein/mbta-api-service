@@ -97,7 +97,7 @@ public class ConnectionServiceTest {
 
     @Test
     public void testOpen_noConnections() {
-        service.open(connection, client);
+        service.open(connection.getRouteId(), connection.getStopId(), client);
 
         var expectedConnections = Map.of(
             connection.getStreamId(),
@@ -120,7 +120,7 @@ public class ConnectionServiceTest {
 
         Stream.of(connection, connection2)
             .parallel()
-            .forEach(conn -> service.open(conn, client));
+            .forEach(conn -> service.open(conn.getRouteId(), conn.getStopId(), client));
 
         var expectedConnections = Map.ofEntries(
             Map.entry(
@@ -152,7 +152,7 @@ public class ConnectionServiceTest {
 
         Stream.of(client, client2)
             .parallel()
-            .forEach(cli -> service.open(connection, cli));
+            .forEach(cli -> service.open(connection.getRouteId(), connection.getStopId(), cli));
 
         var expectedConnections = Map.of(
             connection.getStreamId(),
@@ -171,11 +171,11 @@ public class ConnectionServiceTest {
 
     @Test
     public void testOpen_connectionAndClientExist() {
-        service.open(connection, client);
+        service.open(connection.getRouteId(), connection.getStopId(), client);
         Mockito.verify(predictionStreamingService).start(connection.getRouteId(), connection.getStopId());
         Mockito.verifyNoMoreInteractions(predictionStreamingService);
 
-        var openedConnection = service.open(connection, client);
+        var openedConnection = service.open(connection.getRouteId(), connection.getStopId(), client);
         var expectedConnection = buildExpectedConnection(connection, client);
         Assertions.assertEquals(expectedConnection, openedConnection);
 
@@ -204,7 +204,7 @@ public class ConnectionServiceTest {
             .token("token2")
             .build();
 
-        service.open(connection, client);
+        service.open(connection.getRouteId(), connection.getStopId(), client);
         service.connect(connection.getStreamId(), client2);
 
         var expectedConnections = Map.of(
@@ -223,7 +223,7 @@ public class ConnectionServiceTest {
 
     @Test
     public void testConnect_connectionAndClientExist() {
-        service.open(connection, client);
+        service.open(connection.getRouteId(), connection.getStopId(), client);
         Mockito.verify(predictionStreamingService).start(connection.getRouteId(), connection.getStopId());
         Mockito.verifyNoMoreInteractions(predictionStreamingService);
 
@@ -247,7 +247,7 @@ public class ConnectionServiceTest {
 
     @Test
     public void testDisconnect_clientMissing() {
-        service.open(connection, client);
+        service.open(connection.getRouteId(), connection.getStopId(), client);
         Mockito.verify(notificationService).subscribe("Red.place-davis.1", client.getToken());
         Mockito.verifyNoMoreInteractions(notificationService);
 
@@ -270,7 +270,7 @@ public class ConnectionServiceTest {
 
         Stream.of(client, client2)
             .parallel()
-            .forEach(cli -> service.open(connection, cli));
+            .forEach(cli -> service.open(connection.getRouteId(), connection.getStopId(), cli));
 
         service.disconnect(connection.getStreamId(), client.getId());
 
@@ -293,7 +293,7 @@ public class ConnectionServiceTest {
 
     @Test
     public void testClose_connectionHasListeners() {
-        service.open(connection, client);
+        service.open(connection.getRouteId(), connection.getStopId(), client);
         service.close(connection.getStreamId());
 
         var expectedConnections = Map.of(
@@ -307,7 +307,7 @@ public class ConnectionServiceTest {
 
     @Test
     public void testClose_connectionWithoutListeners() {
-        service.open(connection, client);
+        service.open(connection.getRouteId(), connection.getStopId(), client);
         service.disconnect(connection.getStreamId(), client.getId());
         service.close(connection.getStreamId());
 
