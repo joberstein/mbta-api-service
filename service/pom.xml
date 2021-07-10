@@ -14,6 +14,13 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.jesseoberstein</groupId>
+            <artifactId>entities</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.firebase</groupId>
             <artifactId>firebase-admin</artifactId>
         </dependency>
@@ -78,13 +85,6 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.jesseoberstein</groupId>
-            <artifactId>entities</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
