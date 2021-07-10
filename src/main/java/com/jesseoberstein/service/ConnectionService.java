@@ -2,7 +2,6 @@ package com.jesseoberstein.service;
 
 import com.jesseoberstein.model.Client;
 import com.jesseoberstein.model.Connection;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
@@ -21,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 public class ConnectionService {
 
-    @Getter(AccessLevel.PACKAGE)
+    @Getter
     private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<>();
 
     private final PredictionStreamingService predictionStreamingService;
@@ -30,10 +29,15 @@ public class ConnectionService {
     private final ScheduledExecutorService scheduledExecutorService;
     private final PredictionService predictionService;
 
-    public Connection open(Connection connection, Client client) {
-        return connections.compute(connection.getStreamId(), (streamId, existingConnection) -> {
+    public Connection open(String routeId, String stopId, Client client) {
+        return connections.compute(buildStreamId(routeId, stopId), (streamId, existingConnection) -> {
             var openedConnection = Optional.ofNullable(existingConnection)
-                .orElseGet(() -> this.initialize(connection));
+                .orElseGet(() -> Connection.builder()
+                    .routeId(routeId)
+                    .stopId(stopId)
+                    .subscription(predictionStreamingService.start(routeId, stopId))
+                    .listeners(new ConcurrentHashMap<>())
+                    .build());
 
             this.addListener(openedConnection, client);
             return openedConnection;
@@ -85,16 +89,10 @@ public class ConnectionService {
         );
     }
 
-    private Connection initialize(Connection connection) {
-        return connection.toBuilder()
-            .subscription(predictionStreamingService.start(connection.getRouteId(), connection.getStopId()))
-            .listeners(new ConcurrentHashMap<>())
-            .build();
-    }
-
     private void addListener(Connection connection, Client client) {
         connection.getListeners().computeIfAbsent(client.getId(), clientId -> {
-            log.info("Adding client '{}' as a listener of stream '{}'", clientId, connection.getStreamId());
+            var streamId = buildStreamId(connection);
+            log.info("Adding client '{}' as a listener of stream '{}'", clientId, streamId);
 
             var topicName = buildTopicName(connection, client.getDirectionId());
             notificationService.subscribe(topicName, client.getToken());
@@ -110,7 +108,8 @@ public class ConnectionService {
 
     private void removeListener(Connection connection, String clientId) {
         connection.getListeners().computeIfPresent(clientId, (id, client) -> {
-            log.info("Removing client '{}' as a listener of stream '{}'", clientId, connection.getStreamId());
+            var streamId = buildStreamId(connection);
+            log.info("Removing client '{}' as a listener of stream '{}'", clientId, streamId);
 
             var topicName = buildTopicName(connection, client.getDirectionId());
             notificationService.unsubscribe(topicName, client.getToken());
@@ -125,5 +124,13 @@ public class ConnectionService {
         String stopId = connection.getStopId();
 
         return String.join(".", routeId, stopId, String.valueOf(directionId));
+    }
+
+    private String buildStreamId(Connection connection) {
+        return buildStreamId(connection.getRouteId(), connection.getStopId());
+    }
+
+    private String buildStreamId(String routeId, String stopId) {
+        return String.join(":", routeId, stopId);
     }
 }
