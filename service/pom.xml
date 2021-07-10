@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>mbta-api-service</artifactId>
-        <groupId>com.jesseoberstein</groupId>
+        <artifactId>parent</artifactId>
+        <groupId>com.jesseoberstein.mbta-api-service</groupId>
         <version>${revision}${changelist}</version>
     </parent>
 
@@ -14,7 +14,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.jesseoberstein</groupId>
+            <groupId>com.jesseoberstein.mbta-api-service</groupId>
             <artifactId>entities</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
