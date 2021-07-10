@@ -44,6 +44,8 @@ jobs:
         - provider: releases
           edge: true
           cleanup: false
-          file: "target/mbta-api-service-${NEW_VERSION}.jar"
+          file:
+            - "entities/target/entities-${NEW_VERSION}.jar"
+            - "service/target/service-${NEW_VERSION}.jar"
           on:
             branch: master

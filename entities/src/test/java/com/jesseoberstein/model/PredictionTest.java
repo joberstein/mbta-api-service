@@ -1,6 +1,7 @@
 package com.jesseoberstein.model;
 
 import com.jesseoberstein.model.mbta.Prediction;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZoneId;
@@ -47,7 +48,7 @@ public class PredictionTest {
     @Test
     public void testGetTime_missingDepartureAndArrivalTime() {
         var prediction = Prediction.builder().build();
-        assertNull(prediction.getTime());
+        Assertions.assertNull(prediction.getTime());
     }
 
     @Test

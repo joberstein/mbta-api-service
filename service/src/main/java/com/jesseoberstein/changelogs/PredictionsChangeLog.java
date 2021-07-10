@@ -3,8 +3,8 @@ package com.jesseoberstein.changelogs;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
+import com.jesseoberstein.model.db.PredictionEntity;
 import com.mongodb.client.model.Indexes;
-import com.jesseoberstein.model.mbta.Prediction;
 
 @ChangeLog
 public class PredictionsChangeLog {
@@ -18,7 +18,7 @@ public class PredictionsChangeLog {
         );
 
         mongoTemplate
-            .createCollection(Prediction.class)
+            .createCollection(PredictionEntity.class)
             .createIndex(compoundIndex);
     }
 }

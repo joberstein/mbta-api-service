@@ -2,7 +2,7 @@ package com.jesseoberstein.model.mbta;
 
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -11,23 +11,22 @@ import java.util.Optional;
 
 @Data
 @Builder(toBuilder = true)
-@Document("predictions")
 public class Prediction {
 
-    String id;
-    String routeId;
-    String stopId;
-    int directionId;
-    String status;
-    ZonedDateTime arrivalTime;
-    ZonedDateTime departureTime;
+    private String id;
+    private String routeId;
+    private String stopId;
+    private int directionId;
+    private String status;
+    private ZonedDateTime arrivalTime;
+    private ZonedDateTime departureTime;
 
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
 
     public ZonedDateTime getTime() {
         return Optional.ofNullable(this.arrivalTime)
-                .or(() -> Optional.ofNullable(this.departureTime))
-                .orElse(null);
+            .or(() -> Optional.ofNullable(this.departureTime))
+            .orElse(null);
     }
 
     public String getDisplayText() {

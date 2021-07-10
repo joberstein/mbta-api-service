@@ -6,7 +6,12 @@
 
     <groupId>com.jesseoberstein</groupId>
     <artifactId>mbta-api-service</artifactId>
+    <packaging>pom</packaging>
     <version>${revision}${changelist}</version>
+    <modules>
+        <module>service</module>
+        <module>entities</module>
+    </modules>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -24,6 +29,10 @@
         <apache-cxf.version>3.4.3</apache-cxf.version>
         <jackson.version>2.10.3</jackson.version>
         <okhttp3.version>5.0.0-alpha.2</okhttp3.version>
+        <lombok.version>1.18.20</lombok.version>
+        <firebase-admin.version>7.1.1</firebase-admin.version>
+        <testcontainers.version>1.15.3</testcontainers.version>
+        <spring-boot.version>${project.parent.version}</spring-boot.version>
     </properties>
 
     <distributionManagement>
@@ -44,6 +53,11 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>com.google.firebase</groupId>
+                <artifactId>firebase-admin</artifactId>
+                <version>${firebase-admin.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-commons</artifactId>
                 <version>2.5.0</version>
@@ -53,91 +67,31 @@
                 <artifactId>spring-data-mongodb</artifactId>
                 <version>3.2.0</version>
             </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>mockwebserver3-junit5</artifactId>
+                <version>${okhttp3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mongodb</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.google.firebase</groupId>
-            <artifactId>firebase-admin</artifactId>
-            <version>7.1.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.20</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.cloudyrock.mongock</groupId>
-            <artifactId>mongock-spring-v5</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.cloudyrock.mongock</groupId>
-            <artifactId>mongodb-springdata-v3-driver</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>mockwebserver3-junit5</artifactId>
-            <version>${okhttp3.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>mongodb</artifactId>
-            <version>1.15.3</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>1.15.3</version>
-            <scope>test</scope>
-        </dependency>
-
-    </dependencies>
-
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${project.parent.version}</version>
-            </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
@@ -163,19 +117,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>com.heroku.sdk</groupId>
-                <artifactId>heroku-maven-plugin</artifactId>
-                <version>3.0.3</version>
-                <configuration>
-                    <appName>fast-basin-50825</appName>
-                    <processTypes>
-                        <web>java $JAVA_OPTS -Duser.timezone="America/New_York" -cp target/classes:target/dependency/* Main</web>
-                        <web>java -Dserver.port=$PORT -Duser.timezone="America/New_York" $JAVA_OPTS -jar target/*.jar</web>
-                    </processTypes>
-                </configuration>
             </plugin>
         </plugins>
     </build>

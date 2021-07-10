@@ -1,8 +1,8 @@
 package com.jesseoberstein.dao;
 
 import com.jesseoberstein.config.DatabaseConfig;
+import com.jesseoberstein.model.db.PredictionEntity;
 import com.jesseoberstein.model.mbta.Prediction;
-import com.jesseoberstein.service.PredictionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,31 +39,37 @@ public class PredictionDaoTest {
 
     private static final ZonedDateTime NOW = ZonedDateTime.now(ZoneId.systemDefault()).truncatedTo(ChronoUnit.MILLIS);
 
-    private final Prediction PREDICTION_1 = Prediction.builder()
-        .id("1")
-        .routeId("Orange")
-        .stopId("place-forhl")
-        .directionId(0)
-        .departureTime(NOW)
-        .arrivalTime(NOW.plusMinutes(5))
-        .build();
+    private final PredictionEntity PREDICTION_1 = PredictionEntity.fromDto(
+        Prediction.builder()
+            .id("1")
+            .routeId("Orange")
+            .stopId("place-forhl")
+            .directionId(0)
+            .departureTime(NOW)
+            .arrivalTime(NOW.plusMinutes(5))
+            .build()
+    );
 
-    private final Prediction PREDICTION_2 = Prediction.builder()
-        .id("2")
-        .routeId("Orange")
-        .stopId("place-forhl")
-        .directionId(1)
-        .status("Status")
-        .arrivalTime(NOW)
-        .build();
+    private final PredictionEntity PREDICTION_2 = PredictionEntity.fromDto(
+        Prediction.builder()
+            .id("2")
+            .routeId("Orange")
+            .stopId("place-forhl")
+            .directionId(1)
+            .status("Status")
+            .arrivalTime(NOW)
+            .build()
+    );
 
-    private final Prediction PREDICTION_3 = Prediction.builder()
-        .id("3")
-        .routeId("Orange")
-        .stopId("place-maldn")
-        .directionId(0)
-        .departureTime(NOW.plusMinutes(15))
-        .build();
+    private final PredictionEntity PREDICTION_3 = PredictionEntity.fromDto(
+        Prediction.builder()
+            .id("3")
+            .routeId("Orange")
+            .stopId("place-maldn")
+            .directionId(0)
+            .departureTime(NOW.plusMinutes(15))
+            .build()
+    );
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -80,7 +86,7 @@ public class PredictionDaoTest {
     public void testFindByRouteIdAndStopId() {
         var predictions = predictionDao.findByRouteIdAndStopId("Orange", "place-forhl")
             .stream()
-            .sorted(Comparator.comparing(Prediction::getId))
+            .sorted(Comparator.comparing(PredictionEntity::getId))
             .collect(Collectors.toList());
 
         assertEquals(List.of(PREDICTION_1, PREDICTION_2), predictions);
